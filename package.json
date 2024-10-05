@@ -1,5 +1,5 @@
 {
-  "name": "track_wallet",
+  "name": "sbt-mint",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,7 +8,7 @@
     "mint": "npx ts-node src/mint.ts"
   },
   "keywords": [],
-  "author": "",
+  "author": "Roshan Shrestha",
   "license": "ISC",
   "devDependencies": {
     "@coral-xyz/anchor": "^0.29.0",
@@ -20,8 +20,10 @@
   },
   "dependencies": {
     "@solana/spl-token": "^0.4.8",
+    "@solana/spl-token-metadata": "^0.1.5",
     "@solana/web3.js": "^1.95.3",
     "bs58": "^6.0.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "fs": "^0.0.1-security"
   }
 }
