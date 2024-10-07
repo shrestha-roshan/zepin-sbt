@@ -1,7 +1,6 @@
 {
-    "name": "ZePin",
+    "name": "Zebec Ecosystem Physical Infrastructure Network",
     "symbol": "ZePin",
-    "description": "ZePin",
-    "image": "https://raw.githubusercontent.com/solana-developers/opos-asset/main/assets/DeveloperPortal/image.png",
-    "attributes": []
+    "description": "Zebec Network",
+    "image": "https://raw.githubusercontent.com/shrestha-roshan/zepin-sbt/refs/heads/main/image/zepin.jpg"
 }
