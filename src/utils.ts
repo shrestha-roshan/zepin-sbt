@@ -10,3 +10,8 @@ export const MINTER = Keypair.fromSecretKey(
 export const METADATA_PROGRAM_ID = new PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 );
+
+export const RECEIVER_ADDRESSES = [
+  "G6TPzW5tcMNuYJcrkqwgzPSP4158nPhQvY5d62aFdrJB",
+  "BCBspeVJT9kb16HdoDMcizTxvBrFxswmK1NkpV21Dszv",
+];

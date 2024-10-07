@@ -19,9 +19,8 @@ import {
   LENGTH_SIZE,
   createInitializeMetadataPointerInstruction,
 } from "@solana/spl-token";
-import { MINTER } from "./utils";
+import { MINTER, RECEIVER_ADDRESSES } from "./utils";
 import fs from "fs";
-import bs58 from "bs58";
 import {
   createInitializeInstruction,
   pack,
@@ -46,13 +45,16 @@ async function createMint() {
 
     const metadataExtension = TYPE_SIZE + LENGTH_SIZE;
 
+    // read json from metadata.json
+    const metadataFile = JSON.parse(fs.readFileSync("metadata.json", "utf-8"));
+
     const metaData: TokenMetadata = {
       updateAuthority: payer.publicKey,
       mint: mint,
-      name: "Zepin",
-      symbol: "ZePin",
+      name: metadataFile.name,
+      symbol: metadataFile.symbol,
       uri: "https://raw.githubusercontent.com/shrestha-roshan/zepin-sbt/refs/heads/main/metadata.json",
-      additionalMetadata: [["ZePin", "The ZePin Token"]],
+      additionalMetadata: [["ZePin", "Zebec Network ZePIN"]],
     };
     const metadataLen = pack(metaData).length;
 
@@ -126,16 +128,14 @@ async function createMint() {
   }
 }
 
-async function createTokenAccounts() {
+async function createTokenAccounts(address: PublicKey) {
   try {
-    // Create a random keypair as a SBT holder
-    const sbtHolder = new Keypair();
     const sbtHolderTokenAccount = (
       await getOrCreateAssociatedTokenAccount(
         connection,
         payer,
         mint,
-        sbtHolder.publicKey,
+        address,
         true,
         "confirmed",
         undefined,
@@ -143,17 +143,15 @@ async function createTokenAccounts() {
       )
     ).address;
     console.log("SBT holder Token Account:", sbtHolderTokenAccount.toString());
-    return { sbtHolderTokenAccount, sbtHolder };
+    return sbtHolderTokenAccount;
   } catch (error) {
     console.error("Error creating token accounts:", error);
   }
 }
 
-async function mintTokens(
-  destinationTokenAccount: PublicKey,
-  sbtHolder: Keypair
-) {
+async function mintTokens(receiverAddress: PublicKey) {
   try {
+    const destinationTokenAccount = await createTokenAccounts(receiverAddress);
     const transactionSignature = await mintTo(
       connection,
       payer,
@@ -177,13 +175,12 @@ async function mintTokens(
       fs.mkdirSync("output", { recursive: true });
       fs.writeFileSync(
         "output/sbtHolder.csv",
-        "Mint Address,Holder Secret,Holder Address\n"
+        "Mint Address,Holder Token Account,Signature\n"
       );
     }
-    const secretKey = bs58.encode(sbtHolder.secretKey);
     fs.appendFileSync(
       "output/sbtHolder.csv",
-      `${mint.toString()},${secretKey},${sbtHolder.publicKey.toString()}\n`
+      `${mint.toString()},${destinationTokenAccount.toString()},${transactionSignature}\n`
     );
   } catch (error) {
     console.error("Error minting tokens:", error);
@@ -192,8 +189,8 @@ async function mintTokens(
 
 (async () => {
   await createMint();
-  for (let i = 0; i < 10; i++) {
-    const { sbtHolderTokenAccount, sbtHolder } = await createTokenAccounts();
-    await mintTokens(sbtHolderTokenAccount, sbtHolder);
+  for (let i = 0; i < RECEIVER_ADDRESSES.length; i++) {
+    const receiverAddress = new PublicKey(RECEIVER_ADDRESSES[i]);
+    await mintTokens(receiverAddress);
   }
 })();
